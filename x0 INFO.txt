@@ -1,0 +1,379 @@
+ssh <USER>@<IP_HIDDEN>-p 9999
+<PASSWORD_HIDDEN>    <!--- not used
+
+ssh <USER_HIDDEN>@<IP_HIDDEN>-p 9999
+<PASSWORD_HIDDEN>
+
+ssh <USER_HIDDEN>@<IP_HIDDEN>-p 9999
+<PASSWORD_HIDDEN>
+
+ssh <USER_HIDDEN>@<IP_HIDDEN>-p 9999
+<PASSWORD_HIDDEN>
+
+
+http://185.201.9.74:9870/dfshealth.html#tab-overview
+http://185.201.9.74:9864
+http://185.201.9.74:8088/cluster
+http://185.201.9.74:9000/
+
+
+
+--------- root
+
+sudo useradd -m <USER_HIDDEN> << bkin account + home dir
+sudo usermod -s /bin/bash <USER_HIDDEN>  << biar bs login
+usermod -a -Gsudo <USER_HIDDEN>  << enable root
+sudo passwd <USER_HIDDEN>  << ubah pass
+<PASSWORD_HIDDEN>
+
+
+sudo useradd -m <USER_HIDDEN>  << bkin account + home dir
+sudo usermod -s /bin/bash <USER_HIDDEN>  << biar bs login
+usermod -a -Gsudo <USER_HIDDEN>  << enable root
+sudo passwd <USER_HIDDEN>  << ubah pass
+<PASSWORD_HIDDEN>
+
+
+sudo useradd -m <USER_HIDDEN>  << bkin account + home dir
+sudo usermod -s /bin/bash <USER_HIDDEN>  << biar bs login
+usermod -a -Gsudo <USER_HIDDEN> << enable root
+sudo passwd <USER_HIDDEN> << ubah pass
+<PASSWORD_HIDDEN>
+--------- root
+
+ssh <USER_HIDDEN>@<IP_HIDDEN>-p 22
+
+sudo -i
+nano /etc/ssh/sshd_config << sucess config untuk ssh remote
+# eki config
+#  ForwardAgent yes #setting di ssh
+#  ForwardX11 yes #setting di ssh
+#  ForwardX11Trusted yes #setting di ssh
+   Port 8088
+   PermitRootLogin no
+# eki config
+
+nano /etc/ssh/ssh_config  <<< ini untuk ssh local
+# eki config
+# config lebih lanjut di /etc/ssh/sshd_config /etc/ssh/ssh_config
+ForwardAgent yes
+ForwardX11 yes
+ForwardX11Trusted yes
+Port 9999
+#PermitRootLogin no #setting di sshd
+# eki config
+
+
+sudo netstat -lntp | grep ssh
+
+---------- jika error
+ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -N '' -t ed25519
+ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -N '' -t ecdsa
+
+/usr/bin/ssh-keygen -A
+ssh-keygen: generating new host keys: ECDSA ED25519
+---------- jika error
+
+
+service ssh restart
+systemctl restart ssh
+
+service sshd restart
+systemctl restart sshd
+
+sudo ufw status
+sudo ufw disable
+
+
+
+---------------------- install java ----------------
+
+apt-get update
+apt-get install openjdk-8-jdk -y
+apt-get install openjdk-11-jdk -y
+java -version; javac -version
+
+https://tecadmin.net/switch-between-java-versions-on-ubuntu/
+set default java sudo update-alternatives --config java
+
+
+https://askubuntu.com/questions/740757/switch-between-multiple-java-versions
+update-java-alternatives --list
+sudo update-java-alternatives --set /path/to/java/version
+
+java-1.11.0-openjdk-amd64      1111       /usr/lib/jvm/java-1.11.0-openjdk-amd64
+java-1.8.0-openjdk-amd64       1081       /usr/lib/jvm/java-1.8.0-openjdk-amd64
+
+sudo update-java-alternatives --set /usr/lib/jvm/java-1.8.0-openjdk-amd64
+
+
+
+sudo update-alternatives --config java
+
+nano .bashrc
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+---------------------- install java ----------------
+
+
+
+--------------------- install hadoop ---------------
+sudo adduser <USER_HIDDEN>
+bwx123
+
+JAVA_HOME="/usr/lib/jvm/java-8-oracle"
+su - <USER_HIDDEN>
+
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+
+
+Generating public/private rsa key pair.
+Created directory '/home/<USER_HIDDEN>/.ssh'.
+Your identification has been saved in /home/<USER_HIDDEN>/.ssh/id_rsa.
+Your public key has been saved in /home/<USER_HIDDEN>/.ssh/id_rsa.pub.
+The key fingerprint is:
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx <USER_HIDDEN>@<HOST_HIDDEN>
+The key's randomart image is:
++---[RSA 2048]----+
+HIDDEN
++----[SHA256]-----+
+
+--------------  not used
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 0600 ~/.ssh/authorized_keys
+ssh localhost
+yes
+--------------  not used
+
+
+
+
+
+
+cd /home/<USER_HIDDEN>
+wget https://downloads.apache.org/hadoop/common/hadoop-3.2.1/hadoop-3.2.1.tar.gz
+
+tar xzf hadoop-3.2.1.tar.gz
+
+
+nano .bashrc
+
+
+# java option
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+# Hadoop Related Options
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-3.2.1
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+export HADOOP_SSH_OPTS="-p 8088"  
+#export HADOOP_SSH_OPTS="-p 22"   #pastikan SSH hadoop benar
+
+
+copy paste di cli --------------------------
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-3.2.1 \
+export HADOOP_INSTALL=$HADOOP_HOME \
+export HADOOP_MAPRED_HOME=$HADOOP_HOME \
+export HADOOP_COMMON_HOME=$HADOOP_HOME \
+export HADOOP_HDFS_HOME=$HADOOP_HOME \
+export YARN_HOME=$HADOOP_HOME \
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native \
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin \
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native" \
+export HADOOP_SSH_OPTS="-p 9999"  
+
+
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_SSH_OPTS="-p 9999" 
+
+
+----------------------------
+
+
+--------
+
+cp -avr $HADOOP_HOME/etc/hadoop/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml-backup
+nano $HADOOP_HOME/etc/hadoop/core-site.xml
+
+<configuration>
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/home/<USER_HIDDEN>/tmpdata</value>
+</property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://127.0.0.1:9000</value>      #0.0.0.0:9000 (bisa di buka di public)
+</property>
+</configuration>
+
+
+
+
+
+
+
+cp -avr $HADOOP_HOME/etc/hadoop/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml-backup
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+<configuration>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/<USER_HIDDEN>/dfsdata/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/<USER_HIDDEN>/dfsdata/datanode</value>
+</property>
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+</configuration>
+
+cp -avr $HADOOP_HOME/etc/hadoop/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml-backup
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+<configuration> 
+<property> 
+  <name>mapreduce.framework.name</name> 
+  <value>yarn</value> 
+</property> 
+</configuration>
+
+
+
+
+cp -avr $HADOOP_HOME/etc/hadoop/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml-backup
+
+
+nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>127.0.0.1</value> #0.0.0.0  #bisa di akases public
+</property>
+<property>
+  <name>yarn.acl.enable</name>
+  <value>0</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>   
+  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+</configuration>
+
+
+--- eki edit --
+
+<configuration>
+<property>
+  <name>yarn.nodemanager.aux-services</name>
+  <value>mapreduce_shuffle</value>
+</property>
+<property>
+  <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+  <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.resourcemanager.hostname</name>
+  <value>0.0.0.0</value>
+</property>
+<property>
+  <name>yarn.acl.enable</name>
+  <value>0</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>   
+  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+</configuration>
+
+--- eki edit --
+
+
+hdfs namenode -format
+
+cd $HADOOP_HOME/sbin
+
+./start-dfs.sh
+./start-yarn.sh
+
+--- info untuk stop
+./stop-dfs.sh
+./stop-yarn.sh
+--- info untuk stop
+
+--------------------- install hadoop ---------------
+
+ 
+--------------------- install hive ---------------
+
+su - <USER_HIDDEN>
+
+cd /home/<USER_HIDDEN>
+wget https://downloads.apache.org/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
+
+tar xzf apache-hive-3.1.2-bin.tar.gz
+
+nano .bashrc
+#hive
+export HIVE_HOME="/home/<USER_HIDDEN>/apache-hive-3.1.2-bin"
+export PATH=$PATH:$HIVE_HOME/bin
+
+source ~/.bashrc
+
+
+export HIVE_HOME="/home/<USER_HIDDEN>/apache-hive-3.1.2-bin" \
+export PATH=$PATH:$HIVE_HOME/bin \ 
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-3.2.1
+
+--- wajib jalanin hadop  untuk hdfs
+https://stackoverflow.com/questions/50968183/java-net-connectexception-your-endpoint-configuration-is-wrong
+cd $HADOOP_HOME/sbin
+
+./start-dfs.sh
+./start-yarn.sh
+--------
+
+<value>jdbc:derby:/home/<USER_HIDDEN>/apache-hive-3.1.2-bin/metastore_db;databaseName=metastore_db;create=true</value>
+hive-site.xml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

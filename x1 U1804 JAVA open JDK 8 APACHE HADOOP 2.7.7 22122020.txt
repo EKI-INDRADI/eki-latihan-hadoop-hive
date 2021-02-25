@@ -1,0 +1,373 @@
+https://phoenixnap.com/kb/install-hadoop-ubuntu
+https://data-flair.training/blogs/install-hadoop-2-7-on-ubuntu/
+
+
+apt-get update
+apt-get install openjdk-8-jdk -y
+java -version; javac -version
+
+apt-get install openssh-server openssh-client
+
+
+sudo adduser <USER_HIDDEN>
+<PASSWORD_HIDDEN>
+su - <USER_HIDDEN>
+
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+
+======hasilnya
+
+Your identification has been saved in /home/<USER_HIDDEN>/.ssh/id_rsa
+Your public key has been saved in /home/<USER_HIDDEN>/.ssh/id_rsa.pub
+
+=====
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+
+chmod 0600 ~/.ssh/authorized_keys
+
+---------- hanya test
+ssh localhost
+yes
+---------- hanya test
+
+
+
+
+cd /home/<USER_HIDDEN>
+wget https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
+
+tar xzfv hadoop-2.7.7.tar.gz
+
+nano .bashrc
+
+# java option
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+# Hadoop Related Options
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-2.7.7
+export HADOOP_INSTALL=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+export HADOOP_SSH_OPTS="-p 9999"  
+ 
+
+ 
+source ~/.bashrc
+
+
+
+======================
+ENV copy paste biar ada 
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-2.7.7 \
+export HADOOP_INSTALL=$HADOOP_HOME \
+export HADOOP_MAPRED_HOME=$HADOOP_HOME \
+export HADOOP_COMMON_HOME=$HADOOP_HOME \
+export HADOOP_HDFS_HOME=$HADOOP_HOME \
+export YARN_HOME=$HADOOP_HOME \
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native \
+export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin \
+export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native" \
+export HADOOP_SSH_OPTS="-p 9999"  
+
+
+
+
+=======================
+find . -name "*hadoop-env.sh*"
+
+
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_SSH_OPTS="-p 9999" 
+#export JAVA_HOME=${JAVA_HOME}
+
+
+ls /usr/lib/jvm/
+
+nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+
+which javac
+
+readlink -f /usr/bin/javac
+
+----hasilna
+
+/usr/lib/jvm/java-8-openjdk-amd64/bin/javac
+
+
+
+/usr/lib/jvm/java-8-openjdk-amd64 <<< harus sama kaya yg export
+
+--------
+https://data-flair.training/blogs/install-hadoop-2-7-on-ubuntu/
+
+cp -avr $HADOOP_HOME/etc/hadoop/core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml-backup
+nano $HADOOP_HOME/etc/hadoop/core-site.xml
+
+<configuration>
+<property>
+  <name>fs.defaultFS</name>
+  <value>hdfs://0.0.0.0:9000</value>
+</property>
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/home/<USER_HIDDEN>/hadoop_temp</value>
+</property>
+
+--- tambahan biar running namenode di jps
+<property>
+    <name>dfs.http.address</name>
+    <value>50070</value>
+</property>
+----
+
+</configuration>
+
+
+
+
+cp -avr $HADOOP_HOME/etc/hadoop/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml-backup
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+--- file temp dari hadoop
+-- https://hadoop.apache.org/docs/r1.0.4/hdfs-default.html
+
+--dfs.data.dir	${hadoop.tmp.dir}/dfs/data
+
+
+
+rm -rf /home/<USER_HIDDEN>/hadoop_temp/*
+hadoop namenode -format
+hadoop datanode -format
+-- NOT USE
+mkdir -p /home/<USER_HIDDEN>/hadoop_temp/dfsdata/namenode
+mkdir -p /home/<USER_HIDDEN>/hadoop_temp/dfsdata/datanode
+-- NOT USE
+chmod 777 -Rv /home/<USER_HIDDEN>/hadoop_temp
+-------------- perlu di set manual
+<configuration>
+--- NOT USED
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/<USER_HIDDEN>/hadoop_temp/dfsdata/namenode</value>
+</property>
+<property>
+  <name>dfs.data.dir</name>
+  <value>/home/<USER_HIDDEN>/hadoop_temp/dfsdata/datanode</value>
+</property>
+--- NOT USED
+<property>
+  <name>dfs.replication</name>
+  <value>1</value>
+</property>
+</configuration>
+-------------- perlu di set manual
+------------- ngikutin hadoop temp <<< SUKA ERR
+<configuration>
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+</configuration>
+------------- ngikutin hadoop temp
+
+cp -avr $HADOOP_HOME/etc/hadoop/mapred-site.xml.template $HADOOP_HOME/etc/hadoop/mapred-site.xml
+cp -avr $HADOOP_HOME/etc/hadoop/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml-backup
+
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+<configuration>
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+
+
+https://docs.datafabric.hpe.com/62/ReferenceGuide/mapred-site.xml.html#:~:text=MapReduce%20configuration%20options%20are%20stored,default%20values%20for%20MapReduce%20parameters.
+
+<property>
+<name>mapreduce.map.memory.mb</name>
+<value>1024</value> <!--- default
+<value>2048</value>
+<description>kebutuhan hive</description>
+</property>
+
+<property>
+<name>mapreduce.reduce.memory.mb</name>
+<value>3072</value> <!--- default
+<value>4096</value>
+<description>kebutuhan hive</description>
+</property>
+
+
+<property>
+<name>mapreduce.reduce.java.opts</name>
+<value>-Xmx2560M</value> <!--- default
+<value>-Xmx4096M</value>
+<value>-Xmx8000M</value>
+<description>kebutuhan hive</description>
+</property>
+
+</configuration>
+
+
+
+
+cp -avr $HADOOP_HOME/etc/hadoop/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml-backup
+
+
+nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+<configuration>
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property>
+<property>
+<name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+<value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+<property>
+  <name>yarn.nodemanager.env-whitelist</name>   
+  <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+</property>
+</configuration>
+
+
+
+hdfs namenode -format 
+hadoop namenode -format 
+   $HADOOP_HOME/bin/hadoop namenode -format
+   $HADOOP_HOME/bin/hdfs namenode -format
+   $HADOOP_HOME/bin/hadoop datanode -format
+   $HADOOP_HOME/bin/hdfs datanode -format
+
+
+https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml
+https://community.cloudera.com/t5/Support-Questions/Hadoop-Namenode-is-no-up/td-p/112487
+
+hdfs-default.xml
+
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+------------ WAJIB STATIC KARENA DATANODE / NAMENODE SUKA GA JALAN
+   <property>
+      <name>dfs.namenode.secondary.http-address</name>
+      <value>0.0.0.0:50090</value>
+    </property>
+ <property>
+      <name>dfs.datanode.address</name>
+      <value>0.0.0.0:50010</value>
+    </property>
+   <property>
+      <name>dfs.datanode.http.address</name>
+      <value>0.0.0.0:50075</value>
+    </property>
+    <property>
+      <name>dfs.datanode.ipc.address</name>
+      <value>0.0.0.0:50020</value>
+    </property>
+   <property>
+      <name>dfs.namenode.http-address</name>
+      <value>0.0.0.0:50070</value>
+    </property>
+
+------------ WAJIB STATIC KARENA DATANODE / NAMENODE SUKA GA JALAN
+
+----- NOTE USE
+nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+   <property>
+      <name>dfs.namenode.secondary.http-address</name>
+      <value>0.0.0.0:50090</value>
+    </property>
+--- NOT USE
+   <property>
+      <name>dfs.namenode.secondary.https-address</name>
+      <value>0.0.0.0:50091</value>
+    </property>
+--- NOT USE
+   <property>
+      <name>dfs.datanode.address</name>
+      <value>0.0.0.0:50010</value>
+    </property>
+   <property>
+      <name>dfs.datanode.http.address</name>
+      <value>0.0.0.0:50075</value>
+    </property>
+    <property>
+      <name>dfs.datanode.ipc.address</name>
+      <value>0.0.0.0:50020</value>
+    </property>
+   <property>
+      <name>dfs.namenode.http-address</name>
+      <value>0.0.0.0:50070</value>
+    </property>
+--- NOT USE
+    <property>
+      <name>dfs.namenode.https-address</name>
+      <value>0.0.0.0:50071</value>
+    </property>
+--- NOT USE
+    <property>
+      <name>dfs.https.enable</name>
+      <value>false</value>
+    </property>
+----- NOTE USE
+
+
+cd $HADOOP_HOME/sbin
+
+./start-dfs.sh
+./start-yarn.sh
+
+--- info untuk stop
+./stop-dfs.sh
+./stop-yarn.sh
+--- info untuk stop
+
+
+
+----------------- RUNNING
+cd $HADOOP_HOME/sbin
+rm -rf /home/<USER_HIDDEN>/hadoop_temp/*
+hadoop namenode -format
+hadoop datanode -format
+
+./start-all.sh
+./stop-all.sh
+
+jps
+
+
+9024 DataNode
+9201 SecondaryNameNode
+9778 Jps
+8885 NameNode
+9658 NodeManager
+9370 ResourceManager
+
+
+HARUS JALAN SEMUA
+
+
+
+http://185.201.9.74:50070
+http://185.201.9.74:50010
+http://185.201.9.74:50075
+http://185.201.9.74:50020
+http://185.201.9.74:50090 
+
+http://185.201.9.74:8042/node
+http://185.201.9.74:8088/cluster
+
+----------------- RUNNING
+

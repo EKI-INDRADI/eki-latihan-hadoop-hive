@@ -1,0 +1,1281 @@
+su - <USER_HIDDEN>
+
+cd /home/<USER_HIDDEN>
+wget https://downloads.apache.org/hive/hive-2.3.7/apache-hive-2.3.7-bin.tar.gz
+
+tar xzfv apache-hive-2.3.7-bin.tar.gz
+nano .bashrc
+
+export HIVE_HOME="/home/<USER_HIDDEN>/apache-hive-2.3.7-bin"
+export PATH=$PATH:$HIVE_HOME/bin
+# Java
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+# Hadoop Related Options
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-2.7.7
+
+
+source ~/.bashrc
+
+copy paste -----------
+export HIVE_HOME="/home/<USER_HIDDEN>/apache-hive-2.3.7-bin" \
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-2.7.7 \
+export PATH=$PATH:$HIVE_HOME/bin
+copy paste -----------
+
+
+nano $HIVE_HOME/bin/hive-config.sh
+# HIVE
+export HIVE_HOME="/home/<USER_HIDDEN>/apache-hive-2.3.7-bin" 
+# Java
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+# Hadoop Related Options
+export HADOOP_HOME=/home/<USER_HIDDEN>/hadoop-2.7.7
+
+
+--- wajib jalanin hadop  untuk hdfs
+https://stackoverflow.com/questions/50968183/java-net-connectexception-your-endpoint-configuration-is-wrong
+cd $HADOOP_HOME/sbin
+rm -rf /home/<USER_HIDDEN>/hadoop_temp/*
+hdfs namenode -format 
+hdfs datanode -format 
+hadoop namenode -format 
+hadoop datanode -format 
+./start-dfs.sh
+./start-yarn.sh
+--------
+https://programmer.group/hadoop-2.9.1-install-hive-2.3.3-on-ubuntu-16.04.html
+
+----------------------- NOT USE -------------------------------------------------
+mkdir /home/<USER_HIDDEN>/hive_all_temp
+mkdir /home/<USER_HIDDEN>/hive_all_temp/hive_warehouse
+mkdir /home/<USER_HIDDEN>/hive_all_temp/hive_tmp
+
+chmod 777 -Rv /home/<USER_HIDDEN>/hive_all_temp
+chmod 777 -Rv /home/<USER_HIDDEN>/hive_all_temp/hive_tmp
+chmod 777 -Rv /home/<USER_HIDDEN>/hive_all_temp/hive_warehouse
+
+hadoop fs -mkdir /home/<USER_HIDDEN>/hive_all_temp/hive_warehouse
+hadoop fs -mkdir /home/<USER_HIDDEN>/hive_all_temp/hive_tmp
+hadoop fs -chmod  777 /home/<USER_HIDDEN>/hive_all_temp/hive_warehouse
+hadoop fs -chmod  777 /home/<USER_HIDDEN>/hive_all_temp/hive_tmp
+
+
+hdfs dfs -chmod g+w /home/<USER_HIDDEN>/hive_all_temp/hive_warehouse
+hdfs dfs -chmod g+w /home/<USER_HIDDEN>/hive_all_temp/hive_tmp
+hdfs dfs -ls /home/<USER_HIDDEN>/hive_all_temp
+
+cp -avr /home/<USER_HIDDEN>/hive_all_temp /home/<USER_HIDDEN>/hive_all_temp_bk
+
+----------------------- NOT USE -------------------------------------------------
+
+----------------------- NOT USE2 -------------------------------------------------
+hadoop fs -mkdir /user
+hadoop fs -mkdir /user/hive
+hadoop fs -mkdir /user/hive/warehouse
+hadoop fs -mkdir /user/hive_tmp
+hadoop fs -chmod  777 /user/hive/warehouse
+hadoop fs -chmod  777 /user/hive_tmp
+
+
+
+----------- NOT USED
+hdfs dfs -mkdir /tmp
+hdfs dfs -chmod g+w /tmp
+hdfs dfs -ls /
+
+hdfs dfs -mkdir -p /user/hive/warehouse
+hdfs dfs -chmod g+w /user/hive/warehouse
+hdfs dfs -ls /user/hive
+----------- NOT USED
+
+----------------------- NOT USE2 -------------------------------------------------
+------------------ hadoop fs bukan HDFS tapi filesystem  NOT USED---------
+hadoop fs -mkdir /user
+hadoop fs -mkdir /user/hive
+hadoop fs -mkdir /user/hive/warehouse
+hadoop fs -mkdir /tmp/hive
+hadoop fs -chmod  777 /user/hive/warehouse
+hadoop fs -chmod  777 /tmp/hive
+------------------ hadoop fs bukan HDFS tapi filesystem ---------
+
+ini membuat file pada hdfs bukan pada directory 
+linux jadi ga bakalan bentrok kalo nama sama dgn hdfs lain kalo instanya di user
+
+---- jika error 
+mkdir: Cannot create directory /user. Name node is in safe mode.
+
+hadoop dfsadmin -safemode leave
+---- jika error 
+
+hdfs dfs -mkdir /user
+hdfs dfs -mkdir /tmp  <!--- supaya bs create /tmp/hive ato pake mkdir -p biar auto
+hdfs dfs -mkdir -p /tmp/hive               <!------ jika mkdir: `/tmp/hive': No such file or directory , pake -p
+hdfs dfs -mkdir -p /user/hive/warehouse
+hdfs dfs -mkdir -p /user/hive/repl
+hdfs dfs -chmod g+w /user/hive/warehouse
+hdfs dfs -chmod g+w /tmp/hive
+hdfs dfs -chmod g+w /user/hive/repl
+
+hdfs dfs -chmod  777 /user/hive/warehouse
+hdfs dfs -chmod  777 /tmp/hive
+hdfs dfs -chmod  777 /user/hive/repl
+hdfs dfs -chmod  777 /user
+hdfs dfs -chmod  777 /user/hive
+hdfs dfs -chmod  777 /tmp
+hdfs dfs -ls /user/hive
+hdfs dfs -ls /
+
+
+
+mkdir /home/<USER_HIDDEN>/hive_cmrootdir
+chmod 777 -Rv /home/<USER_HIDDEN>/hive_cmrootdir
+
+ls /home/<USER_HIDDEN>/.local/share
+
+kalo ada trash 
+rm -rf /home/<USER_HIDDEN>/.local/share/Trash
+rm -rf /home/<USER_HIDDEN>/.local/share/Trash/files/*
+
+nano $HIVE_HOME/conf/hive-site.xml
+
+cp $HIVE_HOME/conf/hive-default.xml.template $HIVE_HOME/conf/hive-site.xml
+nano $HIVE_HOME/conf/hive-site.xml
+
+
+--- pastikan sama
+<property>
+    <name>hive.metastore.warehouse.dir</name>
+    <value>/user/hive/warehouse</value>
+    <description>location of default database for the warehouse</description>
+</property>
+
+<property>
+    <name>hive.exec.scratchdir</name>
+    <value>/tmp/hive</value>  
+    <description>HDFS root scratch dir for Hive jobs which gets created with write all (733) permission. For each connecting user, an HDFS scratch dir: ${hive.exec.scratchdir}/&lt;username&gt; is created, with ${hive.scratch.dir.permission}.</description>
+</property>
+
+  <property>
+    <name>hive.repl.rootdir</name>
+    <value>/user/hive/repl/</value>
+    <description>HDFS root dir for all replication dumps.</description>
+  </property>
+
+ <property>
+    <name>hive.repl.cmrootdir</name>
+    <value>/home/<USER_HIDDEN>/hive_cmrootdir</value>
+    <description>Root dir for ChangeManager, used for deleted files.</description>
+  </property>
+
+ <property>
+    <name>javax.jdo.option.ConnectionURL</name>
+ <value>jdbc:derby:/home/<USER_HIDDEN>/apache-hive-2.3.7-bin/metastore_db;databaseName=metastore_db;create=true</value>
+    <description>
+      JDBC connect string for a JDBC metastore.
+      To use SSL to encrypt/authenticate the connection, provide database-specific SSL flag in the connection URL.
+      For example, jdbc:postgresql://myhost/db?ssl=true for postgres database.
+    </description>
+  </property>
+
+
+
+
+----------------
+
+ubah semua /user/hive/
+jadi /home/<USER_HIDDEN>/hive_all_temp/
+
+
+
+
+
+
+------ NOT USE
+hdfs namenode -format
+hdfs dfsadmin -safemode leave --- not use
+------ NOT USE
+hadoop namenode -format 
+
+
+
+
+
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+<property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:/home/<USER_HIDDEN>/apache-hive-2.3.7-bin/metastore_db;databaseName=metastore_db;create=true</value>
+</property>
+
+
+defaultnya :
+<property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:;databaseName=metastore_db;create=true</value>
+    <description>
+      JDBC connect string for a JDBC metastore.
+      To use SSL to encrypt/authenticate the connection, provide database-specific SSL flag in the connection URL.
+      For example, jdbc:postgresql://myhost/db?ssl=true for postgres database.
+    </description>
+  </property>
+
+
+rm -rf $HIVE_HOME/metastore_db
+
+$HIVE_HOME/bin/schematool -initSchema -dbType derby
+
+
+--------- fix err
+Logging initialized using configuration in jar:file:/usr/local/apache-hive-2.3.3-bin/lib/hive-common-2.3.3.jar!/hive-log4j2.properties Async: true
+Exception in thread "main" java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: ${system:java.io.tmpdir%7D/$%7Bsystem:user.name%7D
+        at org.apache.hadoop.fs.Path.initialize(Path.java:254)
+        at org.apache.hadoop.fs.Path.<init>(Path.java:212)
+        at org.apache.hadoop.hive.ql.session.SessionState.createSessionDirs(SessionState.java:659)
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:582)
+        at org.apache.hadoop.hive.ql.session.SessionState.beginStart(SessionState.java:549)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:750)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:686)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:239)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:153)
+Caused by: java.net.URISyntaxException: Relative path in absolute URI: ${system:java.io.tmpdir%7D/$%7Bsystem:user.name%7D
+        at java.net.URI.checkPath(URI.java:1823)
+        at java.net.URI.<init>(URI.java:745)
+        at org.apache.hadoop.fs.Path.initialize(Path.java:251)
+        ... 12 more
+
+
+
+mkdir /home/<USER_HIDDEN>/java_tmpdir
+
+nano $HIVE_HOME/conf/hive-site.xml
+
+<property>
+     <name>system:java.io.tmpdir</name>
+     <value>/home/<USER_HIDDEN>/java_tmpdir</value>
+<description>ini buat benerin java diretori linux asli</description>
+  </property>
+  <property>
+     <name>system:user.name</name>
+     <value>hive</value>
+</property>
+
+
+
+
+--------- fix err
+
+
+
+
+
+cd $HIVE_HOME/bin
+
+hive
+-------------------------
+SHOW DATABASES;
+CREATE SCHEMA eki_latihan_db;
+use eki_latihan_db;
+
+-------------------------
+CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
+salary String, destination String)
+COMMENT 'Employee details'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+-------------------------
+
+
+select count(*) from employee;
+
+
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'); 
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'), (1, 'eki2', '100002','asdasdsa'); 
+
+
+
+https://www.informit.com/articles/article.aspx?p=2755708&seqNum=4
+hdfs dfs -df
+ hdfs dfs -du URI
+ hdfs dfs -du /
+
+sync; echo 3 > /proc/sys/vm/drop_caches 
+
+cd /temp
+rm -rf *
+
+https://community.pivotal.io/s/article/How-To-Clean-up-Temporary-Hive-Folders?language=en_US
+clear temp hive
+find /tmp -mmin +3600 -exec rm {} \;
+sudo find /tmp -type f -atime +10 -delete
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//=================== SKIP THIS ERR TETEP RUNNING
+--error 1
+
+https://stackoverflow.com/questions/27050820/running-hive-0-12-with-error-of-slf4j
+
+ Class path contains multiple SLF4J bindings.
+--error 1
+
+-- solved err 1
+find . -name "*hive-jdbc*"
+find . -name "*log4j*"
+
+cd $HIVE_HOME/
+
+mkdir $HIVE_HOME/BACKUP_DEL
+
+mv ./lib/log4j-slf4j-impl-2.10.0.jar ./BACKUP_DEL/
+
+rm ./lib/log4j-slf4j-impl-2.10.0.jar
+
+xxxxxxxxxxx NOT USE SKIP THIS PROSESS
+mv $HIVE_HOME/metastore_db  ./BACKUP_DEL/
+rm -Rf $HIVE_HOME/metastore_db  ./BACKUP_DEL/
+
+mv ./lib/hive-jdbc-3.1.2.jar ./BACKUP_DEL/
+rm ./lib/hive-jdbc-3.1.2.jar
+xxxxxxxxxxx NOT USE SKIP THIS PROSESS
+
+-- solved err 1
+
+//=================== SKIP THIS ERR TETEP RUNNING
+
+$HIVE_HOME/bin/schematool -initSchema -dbType derby
+
+--error 2
+Exception in thread "main" java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)V
+--error 2
+
+-- solved err 2
+mkdir $HIVE_HOME/BACKUP_DEL
+
+cd /home/<USER_HIDDEN>
+find . -name "*guava*"
+
+
+
+--resultna
+
+./hadoop-2.7.7/share/hadoop/common/lib/guava-27.0-jre.jar
+./hadoop-2.7.7/share/hadoop/common/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
+./hadoop-2.7.7/share/hadoop/hdfs/lib/guava-27.0-jre.jar
+./hadoop-2.7.7/share/hadoop/hdfs/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar
+./apache-hive-2.3.7-bin/lib/jersey-guava-2.25.1.jar
+./apache-hive-2.3.7-bin/lib/guava-19.0.jar
+
+--
+
+mv ./apache-hive-2.3.7-bin/lib/guava-19.0.jar ./apache-hive-2.3.7-bin/BACKUP_DEL/
+
+cp ./hadoop-2.7.7/share/hadoop/hdfs/lib/guava-27.0-jre.jar ./apache-hive-2.3.7-bin/lib/
+atau
+cp $HADOOP_HOME/share/hadoop/hdfs/lib/guava-27.0-jre.jar $HIVE_HOME/lib/
+
+
+
+$HIVE_HOME/bin/schematool -initSchema -dbType derby
+
+-- solved err 2
+
+
+
+
+--error 3
+Exception in thread "main" java.lang.RuntimeException: com.ctc.wstx.exc.WstxParsingException: Illegal character entity: expansion character (code 0x8
+ at [row,col,system-id]: [3215,96,"file:/home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml"]
+
+--error 3
+
+
+-- solved err 3
+https://stackoverflow.com/questions/52783323/hive-throws-wstxparsingexception-illegal-character-entity-expansion-character
+
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+shift+alt+3
+
+di baris 3215,96
+
+ada  ini ===> r&#8;    hapus itu alay
+
+
+     <description>
+3215       Ensures commands with OVERWRITE (such as INSERT OVERWRITE) acquire Exclusive locks for&#8;transactional tables.  This ensures that inserts (w/o o>
+3216       are not hidden by the INSERT OVERWRITE.
+3217     </description>
+
+
+$HIVE_HOME/bin/schematool -initSchema -dbType derby
+
+---- selesai
+Initialization script completed
+schemaTool completed
+----- selesai
+
+
+
+cd $HIVE_HOME/bin
+
+hive
+-- solved err 3
+
+
+
+
+
+
+-- error 4
+
+<USER_HIDDEN>@srv-u2004-hive:~/apache-hive-2.3.7-bin/bin$ hive
+Hive Session ID = a420ad88-2f14-41fe-8f60-0da1afac5492
+
+Logging initialized using configuration in jar:file:/home/<USER_HIDDEN>/apache-hive-2.3.7-bin/lib/hive-common-3.1.2.jar!/hive-log4j2.properties Async: true
+Exception in thread "main" java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: ${system:java.io.tmpdir%7D/$%7Bsystem:user.name%7D
+        at org.apache.hadoop.fs.Path.initialize(Path.java:263)
+        at org.apache.hadoop.fs.Path.<init>(Path.java:221)
+        at org.apache.hadoop.hive.ql.session.SessionState.createSessionDirs(SessionState.java:710)
+        at org.apache.hadoop.hive.ql.session.SessionState.start(SessionState.java:627)
+        at org.apache.hadoop.hive.ql.session.SessionState.beginStart(SessionState.java:591)
+        at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:747)
+        at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:683)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.apache.hadoop.util.RunJar.run(RunJar.java:323)
+        at org.apache.hadoop.util.RunJar.main(RunJar.java:236)
+Caused by: java.net.URISyntaxException: Relative path in absolute URI: ${system:java.io.tmpdir%7D/$%7Bsystem:user.name%7D
+        at java.net.URI.checkPath(URI.java:1823)
+        at java.net.URI.<init>(URI.java:745)
+        at org.apache.hadoop.fs.Path.initialize(Path.java:260)
+        ... 12 more
+
+-- error 4
+
+-- solved err 4
+https://stackoverflow.com/questions/27099898/java-net-urisyntaxexception-when-starting-hive
+
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+tamabh di paling atas
+
+  <property>
+    <name>system:java.io.tmpdir</name>
+    <value>/tmp/hive/java</value>
+  </property>
+  <property>
+    <name>system:user.name</name>
+    <value>${user.name}</value>
+  </property>
+
+
+
+cd $HIVE_HOME/bin
+
+hive
+
+
+solved . . . . .
+-- solved err 4
+
+
+
+
+
+-- err 5
+java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+-- err 5
+-- solved err 5
+https://stackoverflow.com/questions/35449274/java-lang-runtimeexception-unable-to-instantiate-org-apache-hadoop-hive-ql-meta
+
+
+nano ~/.bashrc
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export PATH="$PATH:$JAVA_HOME/bin"
+
+cd $HIVE_HOME/bin
+
+hive
+-------------------------
+SHOW DATABASES;
+CREATE SCHEMA eki_latihan_db;
+use eki_latihan_db;
+
+-------------------------
+CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
+salary String, destination String)
+COMMENT 'Employee details'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+-------------------------
+
+
+select count(*) from employee;
+
+
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'); 
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'), (1, 'eki2', '100002','asdasdsa'); 
+
+
+https://stackoverflow.com/questions/46268896/java-lang-runtimeexception-org-apache-hadoop-hive-ql-metadata-hiveexception-or
+
+
+
+
+
+
+
+-- err 6
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+
+java.lang.RuntimeException: Error caching map.xml
+
+
+-- err 6
+
+
+
+
+
+----------- ERROR INSERT --
+
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+java.lang.RuntimeException: Error caching map.xml
+
+
+
+set hive.exec.dynamic.partitions = true
+set hive.exec.dynamic.partitions.mode = nonstrict
+
+
+https://knowledge.informatica.com/s/article/489870
+
+----------- ERROR INSERT---
+
+
+-- solved err 6
+https://community.cloudera.com/t5/Support-Questions/hive-set-map-reduce-tasks-not-working/td-p/216814
+set map.reduce.tasks=32
+
+https://stackoverflow.com/questions/16203314/how-does-hive-choose-the-number-of-reducers-for-a-job
+
+https://www.bbvadata.com/self-service-performance-tuning-for-hive/
+
+https://stackoverflow.com/questions/8762064/hive-unable-to-manually-set-number-of-reducers
+
+
+  set hive.exec.reducers.bytes.per.reducer=<number>
+  set hive.exec.reducers.max=<number>
+  set mapreduce.job.reduces=<number>
+
+
+
+https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=42565937
+
+------ recomend
+set hive.exec.reducers.bytes.per.reducer=256000000;
+set hive.exec.reducers.max=1009 ;
+set mapreduce.job.reduces= 1 ;
+------ recomend
+set mapreduce.job.reduces= -1 https://stackoverflow.com/questions/41628765/can-anyone-please-explain-what-does-mapreduce-job-reduces-1-means
+
+set hive.exec.reducers.bytes.per.reducer=1000000000
+set hive.exec.reducers.max=999
+set mapreduce.job.reduces= 1 http://hadoop.apache.org/docs/r2.7.1/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
+
+
+
+-------------------jika masih error
+cd $HADOOP_HOME/sbin
+
+./start-dfs.sh
+./start-yarn.sh
+
+./stop-all.sh
+--------------------not use
+/home/<USER_HIDDEN>/hive-2.3.7-bin/   <<<<<< MASALAH harusya apache-hive-2.3.7-bin/
+--------------------not use
+b
+rm -rf $HIVE_HOME/metastore_db
+
+cd $HIVE_HOME
+schematool -initSchema -dbType derby
+
+
+
+
+
+
+
+-------------------jika masih error
+
+
+
+-- solved err 5
+
+
+
+-------------------
+
+
+
+https://www.ibm.com/support/pages/resolving-exceeded-max-jobconf-size-error-hive
+
+
+find . -name "*mapred-site.xml*"
+
+find . -name "*mapred-site*"
+
+
+
+
+nano /home/<USER_HIDDEN>/hadoop-2.7.7/etc/hadoop/mapred-site.xml
+
+<property>
+<name>mapred.user.jobconf.limit</name>
+<value>10485760</value>
+</property>
+
+
+cd $HADOOP_HOME/sbin
+
+./stop-dfs.sh
+./stop-yarn.sh
+
+
+
+
+----------------------
+
+
+FIX ERROR
+SemanticException org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.ql.metadata.SessionHiveMetaStoreClient
+
+
+
+https://askubuntu.com/questions/1073035/failed-hiveexception-java-lang-runtimeexception-unable-to-instantiate-org-apac
+
+sudo apt install derby-tools libderby-java libderbyclient-java
+
+
+
+
+
+
+
+
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+<property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:/home/<USER_HIDDEN>/apache-hive-2.3.7-bin/metastore_db;databaseName=metastore_db;create=true</value>
+</property>
+
+
+defaultnya :
+<property>
+    <name>javax.jdo.option.ConnectionURL</name>
+    <value>jdbc:derby:;databaseName=metastore_db;create=true</value>
+    <description>
+      JDBC connect string for a JDBC metastore.
+      To use SSL to encrypt/authenticate the connection, provide database-specific SSL flag in the connection URL.
+      For example, jdbc:postgresql://myhost/db?ssl=true for postgres database.
+    </description>
+  </property>
+
+
+rm -rf $HIVE_HOME/metastore_db
+
+$HIVE_HOME/bin/schematool -initSchema -dbType derby
+
+
+
+
+cd $HIVE_HOME/bin
+
+hive
+-------------------------
+SHOW DATABASES;
+CREATE SCHEMA eki_latihan_db;
+use eki_latihan_db;
+
+-------------------------
+CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
+salary String, destination String)
+COMMENT 'Employee details'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+-------------------------
+
+
+select count(*) from employee;
+
+
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'); 
+INSERT INTO TABLE employee VALUES (1, 'eki', '10000','asdasdsa'), (1, 'eki2', '100002','asdasdsa'); 
+
+------------------ Enable acid support -----------------------
+https://www.hdfstutorial.com/blog/update-delete-hive-tables/
+http://unmeshasreeveni.blogspot.com/2014/11/updatedeleteinsert-in-hive-0140.html
+https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties
+https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=82903061#ConfigurationProperties-hive.txn.manager
+
+
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+
+ hive.support.concurrency                                     true   , defaultnya false
+ hive.enforce.bucketing                                       true   , (tidak ada di ver 2 always true)
+ hive.exec.dynamic.partition.mode                        nonstrict   , defaultnya strict
+ hive.txn.manager   org.apache.hadoop.hive.ql.lockmgr.DbTxnManager   , defaultnya org.apache.hadoop.hive.ql.lockmgr.DummyTxnManager
+ hive.compactor.initiator.on                                  true   , defaultnya false
+ hive.compactor.worker.threads                                   1   , defaultnya 0
+
+
+
+------- untuk transaksi
+https://community.cloudera.com/t5/Community-Articles/Hive-ACID-Merge-by-Example/ta-p/245402
+
+CREATE TABLE IF NOT EXISTS employee ( eid int, name String,
+salary String, destination String)
+COMMENT 'Employee details'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+CREATE TABLE IF NOT EXISTS employee_orc ( eid int, name String,
+salary decimal, destination String)
+STORED AS ORC ;
+
+CREATE TABLE IF NOT EXISTS employee_orc_trx ( eid int, name String,
+salary decimal, destination String)
+PARTITIONED BY (trx_date string)
+CLUSTERED BY (eid) into 5 buckets 
+STORED AS ORC TBLPROPERTIES ('transactional'='true') ;
+
+drop table employee_orc_trx;
+drop table employee_orc;
+
+CREATE TABLE IF NOT EXISTS employee_orc ( eid int, name String,
+salary decimal, destination String)
+STORED AS ORC ;
+
+CREATE TABLE IF NOT EXISTS employee_orc_trx ( eid int, name String,
+salary decimal, destination String)
+CLUSTERED BY (destination) into 10 buckets 
+STORED AS ORC TBLPROPERTIES ('transactional'='true') ;
+
+---------------------v
+CREATE TABLE IF NOT EXISTS employee_orc_trx ( eid int, name String,
+salary decimal, destination String)
+PARTITIONED BY (datestamp STRING) 
+CLUSTERED BY (destination) into 256 buckets 
+STORED AS ORC TBLPROPERTIES ('transactional'='true') ;
+----------------------v
+
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+https://cwiki.apache.org/confluence/display/Hive/Configuration+Properties
+
+
+set hive.exec.reducers.bytes.per.reducer=1000000000 ;
+set hive.exec.reducers.max=999;
+set mapreduce.job.reduces=-1; <<<< jangan -1  minimal 1
+
+
+----------------v
+https://stackoverflow.com/questions/42969589/execution-error-return-code-2-from-org-apache-hadoop-hive-ql-exec-mr-mapredtask
+
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+SET hive.exec.max.dynamic.partitions = 10000;   defaultnya 1000;
+SET hive.exec.max.dynamic.partitions.pernode = 1000; defaultnya 100;
+----------------v
+
+------- untuk transaksi
+INSERT INTO TABLE employee VALUES (1, 'eki', '25200','asdasdsa'); 
+INSERT INTO TABLE employee_orc (eid,name,salary, destination) VALUES (1, 'eki', 25200,'asdasdsa'); 
+INSERT INTO TABLE employee_orc_trx (eid,name,salary,destination) VALUES (1, 'eki', 25200,'asdasdsa'); 
+
+
+
+
+
+
+INSERT INTO TABLE employee_orc_trx (eid,name,salary,destination) VALUES (1, 'eki', 25200,'asdasdsa'); 
+-------------------v
+INSERT INTO TABLE employee_orc_trx PARTITION (datestamp = '2014-09-23') (eid,name,salary,destination) VALUES (1, 'eki', 25200,'asdasdsa') ;
+select * from employee_orc_trx;
+INSERT INTO TABLE employee_orc_trx PARTITION (datestamp) (eid,name,salary,destination) VALUES (2, 'eki', 25200,'asdasdsa'); 
+-------------------v
+from employee_orc
+INSERT INTO TABLE employee_orc_trx
+select eid,name,salary,destination
+
+UPDATE employee_orc SET name = 'Eki Indradi', salary = 20000000 where eid= 1
+
+
+https://docs.cloudera.com/HDPDocuments/HDP3/HDP-3.1.5/using-hiveql/content/hive_insert_data_in_a_hive_table.html
+CREATE TABLE hello_acid (key int, value int)
+PARTITIONED BY (load_date date)
+CLUSTERED BY(key) INTO 3 BUCKETS
+STORED AS ORC TBLPROPERTIES ('transactional'='true');
+
+
+INSERT INTO hello_acid partition (load_date='2016-03-01') VALUES (1, 1);
+INSERT INTO hello_acid partition (load_date='2016-03-02') VALUES (2, 2);
+INSERT INTO hello_acid partition (load_date='2016-03-03') VALUES (3, 3);
+SELECT * FROM hello_acid;
+
+
+
+--------JIKA ERROR ----------
+
+https://stackoverflow.com/questions/42669171/semanticexception-error-10265-while-running-simple-hive-select-query-on-a-tran/42669280
+
+FAILED: SemanticException [Error 10265]: This command is not allowed on an ACID table eki_latihan_db.hello_acid with a non-ACID transaction manager. Failed command: INSERT INTO hello_acid partition (load_date='2016-03-01') VALUES (1, 1)
+
+
+----------- SOLVED
+nano /home/<USER_HIDDEN>/apache-hive-2.3.7-bin/conf/hive-site.xml
+Hive transaction manager must be set to org.apache.hadoop.hive.ql.lockmgr.DbTxnManager in order to work with ACID tables.
+
+SET hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+Additionally, Set these properties to turn on transaction support
+
+Client Side
+
+SET hive.support.concurrency=true;
+SET hive.enforce.bucketing=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+Server Side (Metastore)
+
+SET hive.compactor.initiator.on=true;
+SET hive.compactor.worker.threads=1;
+
+ 
+===== error solved insert STORED AS ORC TBLPROPERTIES
+--- error insert STORED AS ORC TBLPROPERTIES 
+Execution Error, return code 2 from org.apache.hadoop.hive.ql.exec.mr.MapRedTask
+--- error insert STORED AS ORC TBLPROPERTIES 
+https://www.edureka.co/community/66949/failed-execution-error-return-apache-hadoop-hive-mapredtask
+
+edit your mapred-site.xml file and increase the value of the attributes 'mapreduce.map.memory.mb' and 'mapreduce.reduce.memory.mb'
+nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
+
+
+https://docs.datafabric.hpe.com/62/ReferenceGuide/mapred-site.xml.html#:~:text=MapReduce%20configuration%20options%20are%20stored,default%20values%20for%20MapReduce%20parameters.
+https://hadoop.apache.org/docs/r3.0.0/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml
+<property>
+<name>mapreduce.map.memory.mb</name>
+<value>-1</value><!--- default , error insert acid
+<value>10</value><!-- used , error insert acid
+<value>1024</value><!-- error , karena vir memory kepake 2,1 , memory used 2,6, dump 1 gb
+<value>2048</value>  <!-- used
+<description>kebutuhan hive</description>
+</property>
+1x
+
+<property>
+<name>mapreduce.reduce.memory.mb</name>
+<value>-1</value> <!--- default , error insert acid
+<value>10</value><!-- used , error insert acid
+<value>2048</value><!-- error , karena vir memory kepake 2,1 , memory used 2,6, dump 1 gb
+<value>3072</value> <!---  insert acid ok, update gagal
+<value>4096</value> <!-- used
+<description>kebutuhan hive</description>
+</property>
+2x
+
+--- JGN DI PAKE tannpa ini jalan
+
+<property>
+<name>mapreduce.map.java.opts</name>
+<value>-Xmx1024m</value> <!-- error , karena vir memory kepake 2,1 , memory used 2,6, dump 1 gb
+<value>-Xmx3072m</value> <!-ok
+<description>kebutuhan hive</description>
+</property>
+
+<property>
+<name>mapreduce.reduce.java.opts</name>
+<value>-Xmx2048M</value> <!-- error , karena vir memory kepake 2,1 , memory used 2,6, dump 1 gb
+<value>-Xmx2560M</value> <!--- default
+<value>-Xmx4096M</value> <!-- ok
+<value>-Xmx6144m</value> <!-- used
+<value>-Xmx8000M</value>
+<description>kebutuhan hive</description>
+</property>
+
+--- JGN DI PAKEtannpa ini jalan
+
+----- masalah -------------------
+
+<configuration>
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+    </property>
+<property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>1024</value>
+    <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.memory.mb</name>
+     <value>3072</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.map.java.opts</name>
+     <value>-Xmx1024m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.java.opts</name>
+     <value>-Xmx2560M</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.input.fileinputformat.split.maxblocknum</name>
+     <value>0</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.mb</name>
+     <value>512</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.factor</name>
+     <value>100</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.shuffle.parallelcopies</name>
+     <value>50</value>
+     <description>kebutuhan hive</description>
+</property>
+</configuration>
+
+----- masalah -------------------
+
+
+
+----- masalah 4gb-------------------
+
+<configuration>
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+    </property>
+<property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>2048</value>
+    <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.memory.mb</name>
+     <value>4096</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.map.java.opts</name>
+     <value>-Xmx3072m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.java.opts</name>
+     <value>-Xmx6144m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.input.fileinputformat.split.maxblocknum</name>
+     <value>0</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.mb</name>
+     <value>1024</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.factor</name>
+     <value>200</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.shuffle.parallelcopies</name>
+     <value>100</value>
+     <description>kebutuhan hive</description>
+</property>
+</configuration>
+
+----- masalah 4gb-------------------
+
+
+
+
+----- masalah 4gb-------------------
+
+<configuration>
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+    </property>
+<property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>2048</value>
+    <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.memory.mb</name>
+     <value>4096</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.map.java.opts</name>
+     <value>-Xmx2048m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.java.opts</name>
+     <value>-Xmx4096m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.input.fileinputformat.split.maxblocknum</name>
+     <value>0</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.mb</name>
+     <value>1024</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.task.io.sort.factor</name>
+     <value>200</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.shuffle.parallelcopies</name>
+     <value>100</value>
+     <description>kebutuhan hive</description>
+</property>
+</configuration>
+----- masalah 4gb-------------------
+
+------------------------------------SOLVED UNTUK RAM 4GB , INSERT BIASA, INSERT TRX OK , UPDATE/delete stuck butuh ram lebih-------------------------
+
+<configuration>
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+    </property>
+<property>
+    <name>mapreduce.map.memory.mb</name>
+    <value>2048</value>
+    <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.memory.mb</name>
+     <value>4096</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.map.java.opts</name>
+     <value>-Xmx2048m</value>
+     <description>kebutuhan hive</description>
+</property>
+<property>
+     <name>mapreduce.reduce.java.opts</name>
+     <value>-Xmx4096m</value>
+     <description>kebutuhan hive</description>
+</property>
+</configuration>
+
+DELETE map=22% reduce=0% << stuck 4gb
+UPDATE map=100% reduce=0% << stuck 4gb
+------------------------------------SOLVED UNTUK RAM 4GB , INSERT BIASA, INSERT TRX OK , UPDATE/delete stuck butuh ram lebih -------------------------
+
+
+
+
+
+
+
+
+
+cd $HADOOP_HOME/sbin
+rm -rf /home/<USER_HIDDEN>/hadoop_temp/*
+hadoop namenode -format
+hadoop datanode -format
+
+./start-all.sh
+jps
+./stop-all.sh
+===== error solved insert STORED AS ORC TBLPROPERTIES
+----------- SOLVED 
+
+CREATE TABLE hello_acid (key int, value int)
+PARTITIONED BY (load_date date)
+CLUSTERED BY(key) INTO 3 BUCKETS
+STORED AS ORC TBLPROPERTIES ('transactional'='true');
+
+
+INSERT INTO hello_acid partition (load_date='2016-03-01') VALUES (1, 1);
+INSERT INTO hello_acid partition (load_date='2016-03-02') VALUES (2, 2);
+INSERT INTO hello_acid partition (load_date='2016-03-03') VALUES (3, 3);
+SELECT * FROM hello_acid;
+
+UPDATE hello_acid SET value = 10 WHERE key = 1;
+UPDATE hello_acid SET value =99 where key=1;
+UPDATE hello_acid SET value =99 where key=1;
+
+DELETE FROM hello_acid WHERE key=2;
+
+
+drop table employee_orc_trx ;
+
+CREATE TABLE IF NOT EXISTS employee_orc_trx ( eid int, name String,
+salary decimal, destination String)
+PARTITIONED BY (load_date date)
+CLUSTERED BY (destination) into 256 buckets 
+STORED AS ORC TBLPROPERTIES ('transactional'='true') ;
+
+INSERT INTO TABLE employee_orc_trx partition (load_date='2016-03-03') (eid,name,salary,destination) VALUES (1, 'eki', 25200,'asdasdsa'); 
+
+UPDATE employee_orc_trx partition (load_date='2016-03-03') SET name = 'Eki Indradi', salary = 20000000 where eid= 1
+
+UPDATE employee_orc_trx partition (load_date='2016-03-03') SET name='Eki Indradi', salary=20000000 where eid=1
+
+--https://www.xplenty.com/blog/apache-spark-vs-tez-comparison/
+--https://www.educba.com/sql-vs-hadoop/
+
+
+
+info
+
+Hadoop mapreduce vs spark vs tez
+itu berbeda bisa di cek di 
+http://185.201.9.74:8088/cluster/apps
+--------------------------------------------------------------
+
+
+
+UPDATE employee SET name = 'Eki Indradi', salary = '20000000' where eid= 1
+
+
+sudo rm -r /home/<USER_HIDDEN>/tmpdata
+sudo mkdir -p /home/<USER_HIDDEN>/tmpdata
+--- not use   sudo chown <USER_HIDDEN>:hadoop /home/<USER_HIDDEN>/tmpdata
+sudo chmod 777 /home/<USER_HIDDEN>/tmpdata
+
+
+hdfs namenode -format
+hdfs dfsadmin -safemode leave
+hadoop namenode -format  << 2.7.7 pake ini
+
+
+SET mapred.reduce.tasks=1 / SET mapreduce.job.reduces=1;
+set hive.auto.convert.join.noconditionaltask=false;
+----------------------
+
+
+
+JIKA ERROR org apache hadoop ipc RemoteException java io IOException File
+your datanode is not in running mode.
+pastikan  di jps running well
